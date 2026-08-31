@@ -18,8 +18,7 @@ export default async function PaginaCatalogo() {
     <div className="p-4 sm:p-6">
       <h1 className="mb-1 text-[22px] font-semibold text-text">Catálogo</h1>
       <p className="mb-5 text-sm text-text-muted">
-        Especialidades, médicos, consultorios y servicios (§11.1). Los horarios se editan en una sección aparte, todavía no
-        construida.
+        Especialidades, médicos, consultorios, servicios y horarios (§11.1).
       </p>
       <VistaCatalogo
         sedeId={sedeId}

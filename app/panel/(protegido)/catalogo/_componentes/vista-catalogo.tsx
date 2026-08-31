@@ -6,13 +6,18 @@ import {
   accionActualizarConsultorio,
   accionActualizarEspecialidad,
   accionActualizarFlagServicio,
+  accionActualizarHorario,
   accionActualizarMedico,
   accionBuscarServicios,
   accionCrearConsultorio,
   accionCrearEspecialidad,
+  accionCrearHorario,
   accionCrearMedico,
+  accionEliminarHorario,
+  accionListarHorarios,
 } from "../_acciones";
 import type { ServicioResultado } from "@/lib/catalogo/servicios";
+import type { HorarioFila, DatosHorario } from "@/lib/catalogo/horarios";
 
 type Modo = "exacto" | "bloque" | "solicitud";
 
@@ -49,14 +54,24 @@ const clasesCampo =
   "h-9 w-full rounded-md border border-line-strong bg-surface px-2.5 text-[13.5px] text-text placeholder:text-text-muted";
 const clasesEtiqueta = "mb-1 block text-[12.5px] font-medium text-text";
 
-const PESTANAS = ["especialidades", "medicos", "consultorios", "servicios"] as const;
+const PESTANAS = ["especialidades", "medicos", "consultorios", "servicios", "horarios"] as const;
 type Pestana = (typeof PESTANAS)[number];
 const ETIQUETAS_PESTANA: Record<Pestana, string> = {
   especialidades: "Especialidades",
   medicos: "Médicos",
   consultorios: "Consultorios",
   servicios: "Servicios",
+  horarios: "Horarios",
 };
+
+const DIAS_SEMANA = [
+  { valor: 1, etiqueta: "Lunes" },
+  { valor: 2, etiqueta: "Martes" },
+  { valor: 3, etiqueta: "Miércoles" },
+  { valor: 4, etiqueta: "Jueves" },
+  { valor: 5, etiqueta: "Viernes" },
+  { valor: 6, etiqueta: "Sábado" },
+] as const;
 
 export function VistaCatalogo({
   sedeId,
@@ -94,6 +109,9 @@ export function VistaCatalogo({
       {pestana === "medicos" && <TabMedicos sedeId={sedeId} medicos={medicos} especialidades={especialidades} vinculos={vinculos} />}
       {pestana === "consultorios" && <TabConsultorios sedeId={sedeId} consultorios={consultorios} />}
       {pestana === "servicios" && <TabServicios />}
+      {pestana === "horarios" && (
+        <TabHorarios especialidades={especialidades} medicos={medicos} vinculos={vinculos} consultorios={consultorios} />
+      )}
     </div>
   );
 }
@@ -692,5 +710,320 @@ function FilaServicio({ servicio }: { servicio: ServicioResultado }) {
         <input type="checkbox" checked={activo} onChange={() => alternar("activo", activo, setActivo)} className="h-4 w-4" />
       </td>
     </tr>
+  );
+}
+
+/* ---------------- Horarios ---------------- */
+
+function TabHorarios({
+  especialidades,
+  medicos,
+  vinculos,
+  consultorios,
+}: {
+  especialidades: Especialidad[];
+  medicos: Medico[];
+  vinculos: Vinculo[];
+  consultorios: Consultorio[];
+}) {
+  const router = useRouter();
+  const [especialidadId, setEspecialidadId] = useState("");
+  const [horarios, setHorarios] = useState<HorarioFila[]>([]);
+  const [cargando, setCargando] = useState(false);
+  const [creandoNuevo, setCreandoNuevo] = useState(false);
+
+  const medicosDeEspecialidad = useMemo(
+    () => vinculos.filter((v) => v.especialidad_id === especialidadId).map((v) => medicos.find((m) => m.id === v.medico_id)!).filter(Boolean),
+    [vinculos, medicos, especialidadId]
+  );
+
+  useEffect(() => {
+    if (!especialidadId) {
+      setHorarios([]);
+      return;
+    }
+    setCargando(true);
+    accionListarHorarios(especialidadId).then((r) => {
+      setHorarios(r);
+      setCargando(false);
+    });
+  }, [especialidadId]);
+
+  function recargar() {
+    setCreandoNuevo(false);
+    if (!especialidadId) return;
+    accionListarHorarios(especialidadId).then(setHorarios);
+    router.refresh();
+  }
+
+  const grupos = useMemo(() => {
+    const mapa = new Map<string, { etiqueta: string; filas: HorarioFila[] }>();
+    for (const h of horarios) {
+      const medico = h.medicoId ? medicos.find((m) => m.id === h.medicoId) : null;
+      const clave = h.medicoId ?? "sin-medico";
+      const etiqueta = medico ? `${medico.titulo ?? ""} ${medico.nombres} ${medico.apellidos}`.trim() : "Sin médico (p. ej. Laboratorio)";
+      if (!mapa.has(clave)) mapa.set(clave, { etiqueta, filas: [] });
+      mapa.get(clave)!.filas.push(h);
+    }
+    return [...mapa.values()];
+  }, [horarios, medicos]);
+
+  return (
+    <div className="space-y-3">
+      <div className="max-w-sm">
+        <label className={clasesEtiqueta}>Especialidad</label>
+        <select value={especialidadId} onChange={(e) => setEspecialidadId(e.target.value)} className={clasesCampo}>
+          <option value="">Selecciona…</option>
+          {especialidades.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.nombre}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {especialidadId && (
+        <>
+          {cargando ? (
+            <p className="text-[13px] text-text-muted">Cargando…</p>
+          ) : (
+            <div className="space-y-4">
+              {grupos.length === 0 && <p className="text-[13px] text-text-muted">Sin horarios cargados todavía.</p>}
+              {grupos.map((g) => (
+                <div key={g.etiqueta} className="overflow-hidden rounded-lg border border-line bg-surface">
+                  <h3 className="border-b border-line bg-surface-sunken px-4 py-2 text-[13.5px] font-semibold text-text">{g.etiqueta}</h3>
+                  <ul>
+                    {g.filas.map((h) => (
+                      <FilaHorario key={h.id} horario={h} consultorios={consultorios} onGuardado={recargar} />
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {creandoNuevo ? (
+            <FormularioHorario
+              especialidadId={especialidadId}
+              medicosDeEspecialidad={medicosDeEspecialidad}
+              consultorios={consultorios}
+              onCancelar={() => setCreandoNuevo(false)}
+              onGuardado={recargar}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setCreandoNuevo(true)}
+              className="h-9 rounded-md border border-line-strong px-3.5 text-[13px] font-medium text-text hover:bg-surface-sunken"
+            >
+              + Nuevo horario
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function FilaHorario({
+  horario,
+  consultorios,
+  onGuardado,
+}: {
+  horario: HorarioFila;
+  consultorios: Consultorio[];
+  onGuardado: () => void;
+}) {
+  const [editando, setEditando] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
+  const consultorio = consultorios.find((c) => c.id === horario.consultorioId);
+
+  async function eliminar() {
+    setEliminando(true);
+    const resultado = await accionEliminarHorario(horario.id);
+    setEliminando(false);
+    if (resultado.ok) onGuardado();
+    else alert(resultado.mensaje);
+  }
+
+  if (editando) {
+    return (
+      <li className="border-b border-line px-4 py-3 last:border-b-0">
+        <FormularioHorario
+          horario={horario}
+          medicosDeEspecialidad={[]}
+          consultorios={consultorios}
+          onCancelar={() => setEditando(false)}
+          onGuardado={() => {
+            setEditando(false);
+            onGuardado();
+          }}
+        />
+      </li>
+    );
+  }
+
+  return (
+    <li className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-line px-4 py-2.5 last:border-b-0">
+      <span className="w-20 shrink-0 text-[13.5px] text-text">{DIAS_SEMANA.find((d) => d.valor === horario.diaSemana)?.etiqueta}</span>
+      <span className="tabular text-[13.5px] text-text">
+        {horario.horaInicio.slice(0, 5)}–{horario.horaFin.slice(0, 5)}
+      </span>
+      <span className="text-[12.5px] text-text-muted">
+        {horario.modo} · {horario.duracionMin} min · cupo {horario.cuposPorBloque}
+        {consultorio && ` · ${consultorio.nombre}`}
+      </span>
+      {!horario.activo && <span className="rounded-full bg-surface-sunken px-2 py-0.5 text-[11.5px] text-text-muted">Inactivo</span>}
+      <div className="ml-auto flex gap-2">
+        <button type="button" onClick={() => setEditando(true)} className="text-[13px] font-medium text-navy hover:underline">
+          Editar
+        </button>
+        <button
+          type="button"
+          disabled={eliminando}
+          onClick={eliminar}
+          className="text-[13px] font-medium text-danger hover:underline disabled:opacity-50"
+        >
+          {eliminando ? "Eliminando…" : "Eliminar"}
+        </button>
+      </div>
+    </li>
+  );
+}
+
+function FormularioHorario({
+  especialidadId,
+  horario,
+  medicosDeEspecialidad,
+  consultorios,
+  onCancelar,
+  onGuardado,
+}: {
+  especialidadId?: string;
+  horario?: HorarioFila;
+  medicosDeEspecialidad: Medico[];
+  consultorios: Consultorio[];
+  onCancelar: () => void;
+  onGuardado: () => void;
+}) {
+  const [medicoId, setMedicoId] = useState(horario?.medicoId ?? (medicosDeEspecialidad[0]?.id ?? ""));
+  const [consultorioId, setConsultorioId] = useState(horario?.consultorioId ?? "");
+  const [diaSemana, setDiaSemana] = useState(horario?.diaSemana ?? 1);
+  const [horaInicio, setHoraInicio] = useState(horario?.horaInicio.slice(0, 5) ?? "08:00");
+  const [horaFin, setHoraFin] = useState(horario?.horaFin.slice(0, 5) ?? "09:00");
+  const [modo, setModo] = useState<Modo>(horario?.modo ?? "exacto");
+  const [duracionMin, setDuracionMin] = useState(horario?.duracionMin ?? 20);
+  const [cuposPorBloque, setCuposPorBloque] = useState(horario?.cuposPorBloque ?? 1);
+  const [activo, setActivo] = useState(horario?.activo ?? true);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function guardar() {
+    setGuardando(true);
+    setError(null);
+    const datos: DatosHorario = {
+      medicoId: medicoId || null,
+      consultorioId: consultorioId || null,
+      diaSemana,
+      horaInicio,
+      horaFin,
+      modo,
+      duracionMin,
+      cuposPorBloque,
+      activo,
+    };
+    const resultado = horario ? await accionActualizarHorario(horario.id, datos) : await accionCrearHorario(especialidadId!, datos);
+    setGuardando(false);
+    if (resultado.ok) onGuardado();
+    else setError(resultado.mensaje);
+  }
+
+  return (
+    <div className="space-y-3 rounded-md bg-surface-sunken p-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {!horario && (
+          <div>
+            <label className={clasesEtiqueta}>Médico</label>
+            <select value={medicoId} onChange={(e) => setMedicoId(e.target.value)} className={clasesCampo}>
+              <option value="">Sin médico (p. ej. Laboratorio)</option>
+              {medicosDeEspecialidad.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.titulo} {m.nombres} {m.apellidos}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div>
+          <label className={clasesEtiqueta}>Día</label>
+          <select value={diaSemana} onChange={(e) => setDiaSemana(Number(e.target.value))} className={clasesCampo}>
+            {DIAS_SEMANA.map((d) => (
+              <option key={d.valor} value={d.valor}>
+                {d.etiqueta}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={clasesEtiqueta}>Consultorio (opcional)</label>
+          <select value={consultorioId} onChange={(e) => setConsultorioId(e.target.value)} className={clasesCampo}>
+            <option value="">Sin asignar</option>
+            {consultorios.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={clasesEtiqueta}>Hora inicio</label>
+          <input type="time" value={horaInicio} onChange={(e) => setHoraInicio(e.target.value)} className={`tabular ${clasesCampo}`} />
+        </div>
+        <div>
+          <label className={clasesEtiqueta}>Hora fin</label>
+          <input type="time" value={horaFin} onChange={(e) => setHoraFin(e.target.value)} className={`tabular ${clasesCampo}`} />
+        </div>
+        <div>
+          <label className={clasesEtiqueta}>Modo</label>
+          <select value={modo} onChange={(e) => setModo(e.target.value as Modo)} className={clasesCampo}>
+            <option value="exacto">Exacto</option>
+            <option value="bloque">Bloque</option>
+          </select>
+        </div>
+        <div>
+          <label className={clasesEtiqueta}>Duración (min)</label>
+          <input type="number" value={duracionMin} onChange={(e) => setDuracionMin(Number(e.target.value))} className={`tabular ${clasesCampo}`} />
+        </div>
+        <div>
+          <label className={clasesEtiqueta}>Cupos por bloque</label>
+          <input
+            type="number"
+            value={cuposPorBloque}
+            onChange={(e) => setCuposPorBloque(Number(e.target.value))}
+            className={`tabular ${clasesCampo}`}
+          />
+        </div>
+      </div>
+
+      <label className="flex items-center gap-2 text-[13px] text-text">
+        <input type="checkbox" checked={activo} onChange={(e) => setActivo(e.target.checked)} className="h-4 w-4" />
+        Activo
+      </label>
+
+      {error && <p className="text-[12.5px] text-danger">{error}</p>}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          disabled={guardando || horaFin <= horaInicio}
+          onClick={guardar}
+          className="h-8 rounded-md bg-navy px-3 text-[12.5px] font-medium text-text-inverse hover:bg-navy-deep disabled:opacity-50"
+        >
+          {guardando ? "Guardando…" : "Guardar"}
+        </button>
+        <button type="button" onClick={onCancelar} className="h-8 rounded-md border border-line-strong px-3 text-[12.5px] font-medium text-text hover:bg-surface">
+          Cancelar
+        </button>
+      </div>
+    </div>
   );
 }

@@ -53,12 +53,20 @@ export default async function PaginaAgenda() {
           <h1 className="text-[22px] font-semibold text-text">Agenda del día</h1>
           <p className="tabular text-sm text-text-muted">{formatoFechaLarga(hoy)}</p>
         </div>
-        <Link
-          href="/panel/agenda/nueva"
-          className="h-10 shrink-0 rounded-md bg-navy px-4 text-sm font-medium leading-10 text-text-inverse hover:bg-navy-deep"
-        >
-          + Nueva cita
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/panel/agenda/cancelacion-masiva"
+            className="h-10 shrink-0 rounded-md border border-line-strong px-4 text-sm font-medium leading-10 text-text hover:bg-surface-sunken"
+          >
+            Cancelar día de un médico
+          </Link>
+          <Link
+            href="/panel/agenda/nueva"
+            className="h-10 shrink-0 rounded-md bg-navy px-4 text-sm font-medium leading-10 text-text-inverse hover:bg-navy-deep"
+          >
+            + Nueva cita
+          </Link>
+        </div>
       </header>
       <VistaAgenda citas={citas} />
     </div>

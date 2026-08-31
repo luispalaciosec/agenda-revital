@@ -6,6 +6,7 @@ import { buscarPacientePorDocumento } from "@/lib/citas/buscar-paciente";
 import { crearCitaPanel, type EntradaCrearCita } from "@/lib/citas/crear";
 import { cancelarCitaPanel } from "@/lib/citas/cancelar";
 import { reprogramarCitaPanel } from "@/lib/citas/reprogramar";
+import { listarCitasDelDia, cancelarDiaMedico } from "@/lib/citas/cancelacion-masiva";
 
 export async function accionBuscarPaciente(documento: string) {
   if (!documento.trim()) return null;
@@ -59,6 +60,24 @@ export async function accionReprogramarCita(input: {
     return { ok: true as const, cita };
   } catch (error) {
     return { ok: false as const, mensaje: mensajeDeError(error, "No se pudo reprogramar la cita.") };
+  }
+}
+
+export async function accionListarCitasDelDia(medicoId: string, fecha: string) {
+  try {
+    return await listarCitasDelDia(medicoId, fecha);
+  } catch {
+    return [];
+  }
+}
+
+export async function accionCancelarDiaMedico(medicoId: string, fecha: string, motivo?: string) {
+  try {
+    const cantidad = await cancelarDiaMedico(medicoId, fecha, motivo);
+    revalidatePath("/panel/agenda");
+    return { ok: true as const, cantidad };
+  } catch (error) {
+    return { ok: false as const, mensaje: mensajeDeError(error, "No se pudo cancelar el día.") };
   }
 }
 

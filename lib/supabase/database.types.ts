@@ -1376,6 +1376,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cancelar_dia_medico: {
+        Args: { p_fecha: string; p_medico_id: string; p_motivo?: string }
+        Returns: number
+      }
       es_admin: { Args: never; Returns: boolean }
       es_staff_activo: { Args: never; Returns: boolean }
       generar_codigo_publico: { Args: never; Returns: string }
@@ -1527,6 +1531,7 @@ export type Database = {
         | "recordatorio_3h"
         | "encuesta"
         | "aviso_interno"
+        | "cancelacion"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1705,6 +1710,7 @@ export const Constants = {
         "recordatorio_3h",
         "encuesta",
         "aviso_interno",
+        "cancelacion",
       ],
     },
   },
