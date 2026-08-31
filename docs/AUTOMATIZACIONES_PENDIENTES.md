@@ -11,7 +11,9 @@ Lo construido funciona de punta a punta usando adaptadores de desarrollo (WhatsA
 
 ## Cadencia del cron
 
-`vercel.json` programa `/api/internal/cron` cada 15 minutos. **El plan Hobby de Vercel solo permite cron jobs una vez al día** — con esa cadencia los recordatorios de 3 horas prácticamente no tienen margen para disparar a tiempo. Necesita el plan Pro (ya se decidió Supabase Pro por la misma razón de que esta base es el único registro de las citas del centro).
+**El plan Hobby de Vercel no solo limita el cron a 1x/día — bloquea el deploy completo** si `vercel.json` pide una cadencia más frecuente (lo comprobamos en producción: el deploy fallaba con "Hobby accounts are limited to daily cron jobs"). Por eso `vercel.json` está temporalmente en `0 13 * * *` (una vez al día, 13:00 UTC = 08:00 Guayaquil) en vez de cada 15 minutos.
+
+Con solo 1 corrida diaria, los recordatorios de 3 horas prácticamente no tienen margen para disparar a tiempo, y no-show/vencimientos se procesan con hasta 24h de atraso. **En cuanto se suba a plan Pro**, cambiar `vercel.json` de vuelta a `"*/15 * * * *"` y redeployar (ya se decidió Supabase Pro por la misma razón de que esta base es el único registro de las citas del centro).
 
 `CRON_SECRET` debe configurarse como variable de entorno en Vercel — sin ella, el endpoint se abre en desarrollo pero se cierra por completo en producción.
 
