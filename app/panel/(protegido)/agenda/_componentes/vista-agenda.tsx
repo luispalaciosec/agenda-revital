@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatoHora } from "@/lib/formato";
+import { textoParaErp } from "@/lib/erp";
 import { BadgeEstado } from "./badge-estado";
 import { accionCancelarCita } from "../_acciones";
 import type { Database } from "@/lib/supabase/database.types";
@@ -18,7 +19,16 @@ export interface CitaAgenda {
   inicio: string;
   fin: string;
   estado: EstadoCita;
-  paciente: { nombres: string; apellidos: string } | null;
+  precioAplicado: string | number | null;
+  paciente: {
+    nombres: string;
+    apellidos: string;
+    tipo_documento: "cedula" | "pasaporte";
+    documento: string;
+    fecha_nacimiento: string;
+    correo: string | null;
+  } | null;
+  contacto: { celular: string } | null;
   medico: { id: string; nombres: string; apellidos: string; titulo: string | null } | null;
   consultorio: { id: string; nombre: string } | null;
   especialidad: { id: string; nombre: string } | null;
@@ -105,9 +115,36 @@ function FilaCita({ cita, mostrarConsultorio }: { cita: CitaAgenda; mostrarConsu
   const [confirmandoCancelacion, setConfirmandoCancelacion] = useState(false);
   const [cancelando, setCancelando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiado, setCopiado] = useState(false);
 
   const puedeCancelar = ESTADOS_CANCELABLES.includes(cita.estado);
   const puedeReprogramar = cita.estado === "confirmada";
+
+  async function copiarParaErp() {
+    const texto = textoParaErp({
+      codigoPublico: cita.codigoPublico,
+      inicio: cita.inicio,
+      fin: cita.fin,
+      especialidad: cita.especialidad?.nombre ?? null,
+      servicio: cita.servicio?.descripcion ?? null,
+      medico: cita.medico ? `${cita.medico.titulo ?? ""} ${cita.medico.nombres} ${cita.medico.apellidos}`.trim() : null,
+      precioAplicado: cita.precioAplicado,
+      paciente: cita.paciente
+        ? {
+            nombres: cita.paciente.nombres,
+            apellidos: cita.paciente.apellidos,
+            tipoDocumento: cita.paciente.tipo_documento,
+            documento: cita.paciente.documento,
+            fechaNacimiento: cita.paciente.fecha_nacimiento,
+            correo: cita.paciente.correo,
+          }
+        : null,
+      celular: cita.contacto?.celular ?? null,
+    });
+    await navigator.clipboard.writeText(texto);
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 2000);
+  }
 
   async function cancelar(quien: "paciente" | "centro") {
     setCancelando(true);
@@ -135,8 +172,16 @@ function FilaCita({ cita, mostrarConsultorio }: { cita: CitaAgenda; mostrarConsu
         {mostrarConsultorio && cita.consultorio && <span className="text-[13px] text-text-muted">{cita.consultorio.nombre}</span>}
         <BadgeEstado estado={cita.estado} />
 
-        {!confirmandoCancelacion && (puedeCancelar || puedeReprogramar) && (
+        {!confirmandoCancelacion && (
           <div className="ml-auto flex gap-2">
+            <button
+              type="button"
+              onClick={copiarParaErp}
+              title="Copiar datos del paciente y la cita para pegar en el ERP (§8.3)"
+              className="h-8 rounded-md border border-line-strong px-2.5 text-[12.5px] font-medium text-text hover:bg-surface-sunken"
+            >
+              {copiado ? "Copiado ✓" : "Copiar ERP"}
+            </button>
             {puedeReprogramar && (
               <Link
                 href={`/panel/agenda/reprogramar/${cita.id}`}

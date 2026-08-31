@@ -35,3 +35,14 @@ export function formatoFechaCorta(fecha: string): string {
   }).format(new Date(`${fecha}T12:00:00-05:00`));
 }
 
+/** DD/MM/AAAA, para textos que se pegan en otro sistema (§8.3). */
+export function formatoFechaDMY(fecha: string): string {
+  const [anio, mes, dia] = fecha.split("-");
+  return `${dia}/${mes}/${anio}`;
+}
+
+export function formatoFechaHoraDMY(iso: string): string {
+  const desplazado = new Date(new Date(iso).getTime() - 5 * 60 * 60 * 1000);
+  return formatoFechaDMY(desplazado.toISOString().slice(0, 10));
+}
+

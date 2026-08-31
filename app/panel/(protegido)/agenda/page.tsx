@@ -10,8 +10,9 @@ export default async function PaginaAgenda() {
   const { data, error } = await supabase
     .from("citas")
     .select(
-      `id, codigo_publico, inicio, fin, estado,
-       paciente:pacientes(nombres, apellidos),
+      `id, codigo_publico, inicio, fin, estado, precio_aplicado,
+       paciente:pacientes(nombres, apellidos, tipo_documento, documento, fecha_nacimiento, correo),
+       contacto:contactos(celular),
        medico:medicos(id, nombres, apellidos, titulo),
        consultorio:consultorios(id, nombre),
        especialidad:especialidades(id, nombre),
@@ -36,7 +37,9 @@ export default async function PaginaAgenda() {
     inicio: c.inicio,
     fin: c.fin,
     estado: c.estado,
+    precioAplicado: c.precio_aplicado,
     paciente: c.paciente,
+    contacto: c.contacto,
     medico: c.medico,
     consultorio: c.consultorio,
     especialidad: c.especialidad,
