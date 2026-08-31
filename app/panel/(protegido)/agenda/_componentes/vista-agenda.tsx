@@ -1,11 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { formatoHora } from "@/lib/formato";
 import { BadgeEstado } from "./badge-estado";
+import { accionCancelarCita } from "../_acciones";
 import type { Database } from "@/lib/supabase/database.types";
 
 type EstadoCita = Database["public"]["Enums"]["estado_cita_enum"];
+
+const ESTADOS_CANCELABLES: EstadoCita[] = ["solicitada", "en_gestion", "confirmada"];
 
 export interface CitaAgenda {
   id: string;
@@ -16,8 +21,8 @@ export interface CitaAgenda {
   paciente: { nombres: string; apellidos: string } | null;
   medico: { id: string; nombres: string; apellidos: string; titulo: string | null } | null;
   consultorio: { id: string; nombre: string } | null;
-  especialidad: { nombre: string } | null;
-  servicio: { descripcion: string } | null;
+  especialidad: { id: string; nombre: string } | null;
+  servicio: { id: string; descripcion: string } | null;
 }
 
 type Agrupacion = "medico" | "consultorio";
@@ -85,30 +90,109 @@ export function VistaAgenda({ citas }: { citas: CitaAgenda[] }) {
             </h2>
             <ul>
               {grupo.citas.map((cita) => (
-                <li
-                  key={cita.id}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-line px-4 py-3 last:border-b-0"
-                >
-                  <span className="tabular w-[92px] shrink-0 text-[14px] font-medium text-text">
-                    {formatoHora(cita.inicio)}–{formatoHora(cita.fin)}
-                  </span>
-                  <span className="min-w-[160px] flex-1 text-[14px] text-text">
-                    {cita.paciente ? `${cita.paciente.nombres} ${cita.paciente.apellidos}` : "—"}
-                  </span>
-                  <span className="text-[13px] text-text-muted">
-                    {cita.servicio?.descripcion ?? cita.especialidad?.nombre ?? "—"}
-                  </span>
-                  {agrupacion === "medico" && cita.consultorio && (
-                    <span className="text-[13px] text-text-muted">{cita.consultorio.nombre}</span>
-                  )}
-                  <BadgeEstado estado={cita.estado} />
-                </li>
+                <FilaCita key={cita.id} cita={cita} mostrarConsultorio={agrupacion === "medico"} />
               ))}
             </ul>
           </section>
         ))}
       </div>
     </div>
+  );
+}
+
+function FilaCita({ cita, mostrarConsultorio }: { cita: CitaAgenda; mostrarConsultorio: boolean }) {
+  const router = useRouter();
+  const [confirmandoCancelacion, setConfirmandoCancelacion] = useState(false);
+  const [cancelando, setCancelando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const puedeCancelar = ESTADOS_CANCELABLES.includes(cita.estado);
+  const puedeReprogramar = cita.estado === "confirmada";
+
+  async function cancelar(quien: "paciente" | "centro") {
+    setCancelando(true);
+    setError(null);
+    const resultado = await accionCancelarCita(cita.id, quien);
+    setCancelando(false);
+    if (resultado.ok) {
+      setConfirmandoCancelacion(false);
+      router.refresh();
+    } else {
+      setError(resultado.mensaje);
+    }
+  }
+
+  return (
+    <li className="border-b border-line px-4 py-3 last:border-b-0">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+        <span className="tabular w-[92px] shrink-0 text-[14px] font-medium text-text">
+          {formatoHora(cita.inicio)}–{formatoHora(cita.fin)}
+        </span>
+        <span className="min-w-[160px] flex-1 text-[14px] text-text">
+          {cita.paciente ? `${cita.paciente.nombres} ${cita.paciente.apellidos}` : "—"}
+        </span>
+        <span className="text-[13px] text-text-muted">{cita.servicio?.descripcion ?? cita.especialidad?.nombre ?? "—"}</span>
+        {mostrarConsultorio && cita.consultorio && <span className="text-[13px] text-text-muted">{cita.consultorio.nombre}</span>}
+        <BadgeEstado estado={cita.estado} />
+
+        {!confirmandoCancelacion && (puedeCancelar || puedeReprogramar) && (
+          <div className="ml-auto flex gap-2">
+            {puedeReprogramar && (
+              <Link
+                href={`/panel/agenda/reprogramar/${cita.id}`}
+                className="h-8 rounded-md border border-line-strong px-2.5 text-[12.5px] font-medium text-text hover:bg-surface-sunken"
+              >
+                Reprogramar
+              </Link>
+            )}
+            {puedeCancelar && (
+              <button
+                type="button"
+                onClick={() => setConfirmandoCancelacion(true)}
+                className="h-8 rounded-md border border-danger px-2.5 text-[12.5px] font-medium text-danger hover:bg-danger-bg"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {confirmandoCancelacion && (
+        <div className="mt-2.5 flex flex-wrap items-center gap-2 rounded-md bg-surface-sunken px-3 py-2">
+          <span className="text-[13px] text-text">¿Quién cancela?</span>
+          <button
+            type="button"
+            disabled={cancelando}
+            onClick={() => cancelar("paciente")}
+            className="h-8 rounded-md border border-line-strong bg-surface px-2.5 text-[12.5px] font-medium text-text hover:bg-surface-sunken disabled:opacity-50"
+          >
+            El paciente
+          </button>
+          <button
+            type="button"
+            disabled={cancelando}
+            onClick={() => cancelar("centro")}
+            className="h-8 rounded-md border border-line-strong bg-surface px-2.5 text-[12.5px] font-medium text-text hover:bg-surface-sunken disabled:opacity-50"
+          >
+            El centro
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmandoCancelacion(false)}
+            className="h-8 rounded-md px-2.5 text-[12.5px] font-medium text-text-muted hover:text-text"
+          >
+            Deshacer
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <p role="alert" aria-live="polite" className="mt-2 text-[12.5px] text-danger">
+          {error}
+        </p>
+      )}
+    </li>
   );
 }
 

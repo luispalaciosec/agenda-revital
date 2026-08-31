@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatoHora, hoyGuayaquil } from "@/lib/formato";
-import { accionBuscarPaciente, accionCrearCita, accionObtenerFranjas } from "../acciones";
+import { accionBuscarPaciente, accionCrearCita, accionObtenerFranjas } from "../../_acciones";
 
 interface Especialidad {
   id: string;

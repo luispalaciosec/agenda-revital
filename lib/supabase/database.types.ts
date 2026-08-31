@@ -1394,6 +1394,58 @@ export type Database = {
         Args: { p_especialidad_id: string }
         Returns: undefined
       }
+      reprogramar_cita: {
+        Args: {
+          p_cita_id: string
+          p_nuevo_consultorio_id: string
+          p_nuevo_fin: string
+          p_nuevo_inicio: string
+          p_nuevo_medico_id: string
+        }
+        Returns: {
+          actualizado_en: string
+          aseguradora_id: string | null
+          atendida_en: string | null
+          canal: Database["public"]["Enums"]["canal_cita_enum"]
+          codigo_publico: string | null
+          consultorio_id: string | null
+          contacto_id: string
+          convenio_id: string | null
+          creado_en: string
+          creado_por: string | null
+          especialidad_id: string
+          estado: Database["public"]["Enums"]["estado_cita_enum"]
+          fbclid: string | null
+          fecha_local: string | null
+          fin: string
+          gclid: string | null
+          id: string
+          indice_cupo: number | null
+          inicio: string
+          lista_precio_id: string
+          llegada_en: string | null
+          medico_id: string | null
+          nota_admision: string | null
+          paciente_id: string
+          precio_aplicado: number
+          referrer: string | null
+          reprogramaciones_count: number
+          sede_id: string
+          servicio_id: string
+          ttclid: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "citas"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       rol_actual: { Args: never; Returns: string }
       sumar_horas_laborables: {
         Args: { p_desde: string; p_horas: number; p_sede_id: string }

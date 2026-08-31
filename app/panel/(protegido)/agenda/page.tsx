@@ -14,8 +14,8 @@ export default async function PaginaAgenda() {
        paciente:pacientes(nombres, apellidos),
        medico:medicos(id, nombres, apellidos, titulo),
        consultorio:consultorios(id, nombre),
-       especialidad:especialidades(nombre),
-       servicio:servicios(descripcion)`
+       especialidad:especialidades(id, nombre),
+       servicio:servicios(id, descripcion)`
     )
     .eq("fecha_local", hoy)
     .order("inicio");
