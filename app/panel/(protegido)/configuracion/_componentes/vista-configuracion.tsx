@@ -22,6 +22,39 @@ const ETIQUETAS_CATEGORIA: Record<string, string> = {
   marca: "Marca",
 };
 
+/** Título legible para cada clave — el nombre técnico (snake_case) no se muestra al usuario. */
+const ETIQUETAS_CLAVE: Record<string, string> = {
+  // agenda
+  alerta_no_show_reincidente_umbral: "Umbral de alerta por no-show reincidente",
+  anticipacion_maxima_dias: "Anticipación máxima para agendar",
+  anticipacion_minima_horas: "Anticipación mínima para agendar",
+  cancelacion_sin_penalidad_horas: "Cancelación sin penalidad hasta",
+  limite_citas_activas_por_paciente: "Límite de citas activas por paciente",
+  lista_espera_ventana_minutos: "Ventana de la lista de espera",
+  no_show_cierre_offset_minutos: "Margen tras el cierre para marcar no-show",
+  prohibir_misma_especialidad_mismo_dia: "Prohibir dos citas de la misma especialidad el mismo día",
+  reprogramacion_max_veces: "Máximo de reprogramaciones por cita",
+  sla_solicitud_horas_laborables: "Plazo para gestionar una solicitud",
+  // integraciones
+  bot_confirma_procedimientos: "El bot confirma procedimientos sin aprobación",
+  canal_bot_activo: "Canal bot activo",
+  canal_web_activo: "Canal web activo",
+  dominio_publico: "Dominio de la web pública",
+  gtm_container_id: "Contenedor de Google Tag Manager",
+  modo_mantenimiento: "Modo mantenimiento",
+  otp_web_activo: "Verificación por código (OTP) en la web",
+  retencion_anios_sin_actividad: "Retención de pacientes sin actividad",
+  validar_consultorios: "Validar disponibilidad de consultorios",
+  // mensajes
+  encuesta_activa: "Encuesta post-cita activa",
+  horas_encuesta_post_cita: "Horas para enviar la encuesta",
+  horas_recordatorio_24h: "Recordatorio de 24 horas",
+  horas_recordatorio_3h: "Recordatorio final",
+  lista_espera_activa: "Notificar cupos liberados",
+  notificaciones_correo_respaldo: "Correo de respaldo del centro",
+  notificaciones_whatsapp_respaldo: "WhatsApp de respaldo del centro",
+};
+
 function agruparPorCategoria(filas: FilaConfiguracion[]): [string, FilaConfiguracion[]][] {
   const grupos = new Map<string, FilaConfiguracion[]>();
   for (const fila of filas) {
@@ -80,7 +113,7 @@ function FilaEditable({ fila }: { fila: FilaConfiguracion }) {
   return (
     <li className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-b border-line px-4 py-3 last:border-b-0">
       <div className="min-w-[220px] flex-1">
-        <p className="tabular text-[13.5px] font-medium text-text">{fila.clave}</p>
+        <p className="text-[13.5px] font-medium text-text">{ETIQUETAS_CLAVE[fila.clave] ?? fila.clave}</p>
         {fila.descripcion && <p className="text-[12.5px] text-text-muted">{fila.descripcion}</p>}
         {error && <p className="text-[12px] text-danger">{error}</p>}
       </div>
