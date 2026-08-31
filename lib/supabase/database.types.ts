@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          activa: boolean
+          creado_en: string
+          creado_por: string | null
+          id: string
+          llave_hash: string
+          nombre: string
+          prefijo: string
+          revocada_en: string | null
+          ultimo_uso_en: string | null
+        }
+        Insert: {
+          activa?: boolean
+          creado_en?: string
+          creado_por?: string | null
+          id?: string
+          llave_hash: string
+          nombre: string
+          prefijo: string
+          revocada_en?: string | null
+          ultimo_uso_en?: string | null
+        }
+        Update: {
+          activa?: boolean
+          creado_en?: string
+          creado_por?: string | null
+          id?: string
+          llave_hash?: string
+          nombre?: string
+          prefijo?: string
+          revocada_en?: string | null
+          ultimo_uso_en?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_creado_por_fkey"
+            columns: ["creado_por"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aseguradoras: {
         Row: {
           activa: boolean
@@ -572,6 +616,41 @@ export type Database = {
         }
         Relationships: []
       }
+      enlaces_magicos: {
+        Row: {
+          contacto_id: string
+          creado_en: string
+          expira_en: string
+          id: string
+          token_hash: string
+          usado_en: string | null
+        }
+        Insert: {
+          contacto_id: string
+          creado_en?: string
+          expira_en: string
+          id?: string
+          token_hash: string
+          usado_en?: string | null
+        }
+        Update: {
+          contacto_id?: string
+          creado_en?: string
+          expira_en?: string
+          id?: string
+          token_hash?: string
+          usado_en?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enlaces_magicos_contacto_id_fkey"
+            columns: ["contacto_id"]
+            isOneToOne: false
+            referencedRelation: "contactos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       especialidades: {
         Row: {
           activa: boolean
@@ -779,6 +858,53 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      idempotencia_citas: {
+        Row: {
+          cita_id: string
+          creado_en: string
+          llave: string
+          respuesta: Json
+        }
+        Insert: {
+          cita_id: string
+          creado_en?: string
+          llave: string
+          respuesta: Json
+        }
+        Update: {
+          cita_id?: string
+          creado_en?: string
+          llave?: string
+          respuesta?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idempotencia_citas_cita_id_fkey"
+            columns: ["cita_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      limite_tasa: {
+        Row: {
+          contador: number
+          identificador: string
+          ventana_inicio: string
+        }
+        Insert: {
+          contador?: number
+          identificador: string
+          ventana_inicio: string
+        }
+        Update: {
+          contador?: number
+          identificador?: string
+          ventana_inicio?: string
+        }
+        Relationships: []
       }
       lista_espera: {
         Row: {
@@ -1033,6 +1159,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      otp_codigos: {
+        Row: {
+          celular: string
+          codigo_hash: string
+          creado_en: string
+          expira_en: string
+          id: string
+          intentos: number
+          verificado_en: string | null
+        }
+        Insert: {
+          celular: string
+          codigo_hash: string
+          creado_en?: string
+          expira_en: string
+          id?: string
+          intentos?: number
+          verificado_en?: string | null
+        }
+        Update: {
+          celular?: string
+          codigo_hash?: string
+          creado_en?: string
+          expira_en?: string
+          id?: string
+          intentos?: number
+          verificado_en?: string | null
+        }
+        Relationships: []
       }
       pacientes: {
         Row: {
@@ -1482,6 +1638,14 @@ export type Database = {
       }
       usuario_actual_id: { Args: never; Returns: string }
       validar_cedula_ecuador: { Args: { p_cedula: string }; Returns: boolean }
+      verificar_limite_tasa: {
+        Args: {
+          p_identificador: string
+          p_limite: number
+          p_ventana_segundos: number
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       accion_auditoria_enum: "crear" | "actualizar" | "eliminar"
@@ -1532,6 +1696,7 @@ export type Database = {
         | "encuesta"
         | "aviso_interno"
         | "cancelacion"
+        | "enlace_magico"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1711,6 +1876,7 @@ export const Constants = {
         "encuesta",
         "aviso_interno",
         "cancelacion",
+        "enlace_magico",
       ],
     },
   },
