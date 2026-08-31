@@ -1564,6 +1564,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      marcar_no_show_del_dia: {
+        Args: { p_fecha: string; p_sede_id: string }
+        Returns: number
+      }
       obtener_configuracion: {
         Args: { p_clave: string; p_default?: Json }
         Returns: Json
@@ -1638,6 +1642,7 @@ export type Database = {
       }
       usuario_actual_id: { Args: never; Returns: string }
       validar_cedula_ecuador: { Args: { p_cedula: string }; Returns: boolean }
+      vencer_solicitudes: { Args: never; Returns: number }
       verificar_limite_tasa: {
         Args: {
           p_identificador: string

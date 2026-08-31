@@ -3,6 +3,7 @@ import { z } from "zod";
 import { crearClienteServicio } from "@/lib/supabase/service-role";
 import { aLocal } from "@/lib/disponibilidad/tiempo";
 import { resolverContactoVerificado, crearPacienteConConsentimientos } from "./contacto-paciente-publico";
+import { dispararEventoAgendamiento } from "@/lib/analitica/eventos";
 
 const EsquemaPacienteNuevo = z.object({
   tipoDocumento: z.enum(["cedula", "pasaporte"]),
@@ -168,15 +169,31 @@ export async function crearCitaPublica(entradaCruda: EntradaCrearCitaPublica) {
           p_sede_id: sede.id,
         });
         await supabase.from("solicitudes_gestion").insert({ cita_id: cita.id, vence_en: venceEn ?? new Date().toISOString() });
-      } else {
         await supabase.from("notificaciones").insert({
           cita_id: cita.id,
           paciente_id: pacienteId,
           canal: "whatsapp",
-          tipo: "confirmacion",
+          tipo: "aviso_interno",
+          plantilla: "aviso:solicitud_por_gestionar",
           estado: "pendiente",
           programada_para: new Date().toISOString(),
         });
+      } else {
+        // Confirmación por WhatsApp y correo (§9.1: "Al confirmar: WhatsApp + correo").
+        await supabase.from("notificaciones").insert([
+          { cita_id: cita.id, paciente_id: pacienteId, canal: "whatsapp", tipo: "confirmacion", estado: "pendiente", programada_para: new Date().toISOString() },
+          { cita_id: cita.id, paciente_id: pacienteId, canal: "correo", tipo: "confirmacion", estado: "pendiente", programada_para: new Date().toISOString() },
+        ]);
+        await supabase.from("notificaciones").insert({
+          cita_id: cita.id,
+          paciente_id: pacienteId,
+          canal: "whatsapp",
+          tipo: "aviso_interno",
+          plantilla: "aviso:cita_nueva",
+          estado: "pendiente",
+          programada_para: new Date().toISOString(),
+        });
+        await dispararEventoAgendamiento(cita.id);
       }
       return cita;
     }

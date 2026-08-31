@@ -13,7 +13,7 @@ export async function cancelarCitaPanel(citaId: string, quienCancela: "paciente"
 
   const { data: cita, error: errorLectura } = await supabase
     .from("citas")
-    .select("id, estado, nota_admision")
+    .select("id, estado, nota_admision, paciente_id")
     .eq("id", citaId)
     .single();
   if (errorLectura) throw errorLectura;
@@ -33,4 +33,17 @@ export async function cancelarCitaPanel(citaId: string, quienCancela: "paciente"
     })
     .eq("id", citaId);
   if (error) throw error;
+
+  // Solo cuando cancela el centro el paciente no se enteró todavía —
+  // cuando cancela el paciente, la admisionista ya habló con él.
+  if (quienCancela === "centro") {
+    await supabase.from("notificaciones").insert({
+      cita_id: citaId,
+      paciente_id: cita.paciente_id,
+      canal: "whatsapp",
+      tipo: "cancelacion",
+      estado: "pendiente",
+      programada_para: new Date().toISOString(),
+    });
+  }
 }

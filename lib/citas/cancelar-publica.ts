@@ -13,7 +13,7 @@ export async function cancelarCitaPublica(citaId: string, contactoId: string, mo
 
   const { data: cita, error: errorLectura } = await supabase
     .from("citas")
-    .select("id, estado, nota_admision, contacto_id")
+    .select("id, estado, nota_admision, contacto_id, paciente_id")
     .eq("id", citaId)
     .single();
   if (errorLectura) throw errorLectura;
@@ -29,4 +29,14 @@ export async function cancelarCitaPublica(citaId: string, contactoId: string, mo
     .update({ estado: "cancelada_paciente", nota_admision: notaAdmision })
     .eq("id", citaId);
   if (error) throw error;
+
+  await supabase.from("notificaciones").insert({
+    cita_id: citaId,
+    paciente_id: cita.paciente_id,
+    canal: "whatsapp",
+    tipo: "aviso_interno",
+    plantilla: "aviso:cancelacion_paciente",
+    estado: "pendiente",
+    programada_para: new Date().toISOString(),
+  });
 }

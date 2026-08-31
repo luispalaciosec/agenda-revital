@@ -1,5 +1,6 @@
 import "server-only";
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { dispararEventoAgendamiento } from "@/lib/analitica/eventos";
 
 export async function gestionarSolicitud(solicitudId: string, aceptar: boolean, observacion?: string) {
   const supabase = await crearClienteServidor();
@@ -9,5 +10,8 @@ export async function gestionarSolicitud(solicitudId: string, aceptar: boolean, 
     p_observacion: observacion || undefined,
   });
   if (error) throw error;
+
+  if (aceptar) await dispararEventoAgendamiento(data.cita_id);
+
   return data;
 }
