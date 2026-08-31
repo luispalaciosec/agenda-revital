@@ -25,3 +25,13 @@ export function formatoFechaLarga(fecha: string): string {
 export function hoyGuayaquil(): string {
   return new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
+
+export function formatoFechaCorta(fecha: string): string {
+  return new Intl.DateTimeFormat("es-EC", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "America/Guayaquil",
+  }).format(new Date(`${fecha}T12:00:00-05:00`));
+}
+
