@@ -2,7 +2,9 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { crearClienteNavegador } from "@/lib/supabase/client";
+import isotipo from "@/app/assets/favicon.png";
 
 export default function PaginaLogin() {
   const router = useRouter();
@@ -34,9 +36,7 @@ export default function PaginaLogin() {
     <main className="flex min-h-full flex-1 items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-lg bg-navy text-lg font-semibold text-text-inverse">
-            R
-          </div>
+          <Image src={isotipo} alt="Revital" className="mx-auto mb-3 h-14 w-14" priority />
           <h1 className="text-[22px] font-semibold text-text">Agenda Revital</h1>
           <p className="mt-1 text-sm text-text-muted">Entra con tu cuenta del panel</p>
         </div>
