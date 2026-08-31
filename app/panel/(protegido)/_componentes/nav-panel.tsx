@@ -19,9 +19,10 @@ const ITEMS_NAV = [
 interface NavPanelProps {
   nombre: string;
   rol: string;
+  solicitudesPendientes: number;
 }
 
-export function NavPanel({ nombre, rol }: NavPanelProps) {
+export function NavPanel({ nombre, rol, solicitudesPendientes }: NavPanelProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -53,6 +54,15 @@ export function NavPanel({ nombre, rol }: NavPanelProps) {
                 aria-current={activo ? "page" : undefined}
               >
                 {item.etiqueta}
+                {item.href === "/panel/solicitudes" && solicitudesPendientes > 0 && (
+                  <span
+                    className={`tabular ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[11px] font-semibold ${
+                      activo ? "bg-surface text-navy" : "bg-danger text-text-inverse"
+                    }`}
+                  >
+                    {solicitudesPendientes}
+                  </span>
+                )}
               </Link>
             );
           })}

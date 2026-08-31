@@ -1379,6 +1379,31 @@ export type Database = {
       es_admin: { Args: never; Returns: boolean }
       es_staff_activo: { Args: never; Returns: boolean }
       generar_codigo_publico: { Args: never; Returns: string }
+      gestionar_solicitud: {
+        Args: {
+          p_aceptar: boolean
+          p_observacion?: string
+          p_solicitud_id: string
+        }
+        Returns: {
+          asignada_a: string | null
+          cita_id: string
+          creado_en: string
+          id: string
+          observacion: string | null
+          resuelta_en: string | null
+          resultado:
+            | Database["public"]["Enums"]["resultado_solicitud_enum"]
+            | null
+          vence_en: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "solicitudes_gestion"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       obtener_configuracion: {
         Args: { p_clave: string; p_default?: Json }
         Returns: Json

@@ -22,9 +22,18 @@ export default async function LayoutPanel({ children }: { children: React.ReactN
     redirect("/panel/login");
   }
 
+  const { count: solicitudesPendientes } = await supabase
+    .from("solicitudes_gestion")
+    .select("id", { count: "exact", head: true })
+    .is("resultado", null);
+
   return (
     <div className="flex min-h-full flex-col">
-      <NavPanel nombre={`${usuario.nombres} ${usuario.apellidos}`} rol={usuario.rol} />
+      <NavPanel
+        nombre={`${usuario.nombres} ${usuario.apellidos}`}
+        rol={usuario.rol}
+        solicitudesPendientes={solicitudesPendientes ?? 0}
+      />
       <main className="flex-1 bg-surface-sunken">{children}</main>
     </div>
   );
