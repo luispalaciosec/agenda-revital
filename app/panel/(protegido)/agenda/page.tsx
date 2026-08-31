@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { crearClienteServidor } from "@/lib/supabase/server";
 import { formatoFechaLarga, hoyGuayaquil } from "@/lib/formato";
 import { VistaAgenda, type CitaAgenda } from "./_componentes/vista-agenda";
@@ -44,9 +45,17 @@ export default async function PaginaAgenda() {
 
   return (
     <div className="p-4 sm:p-6">
-      <header className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-[22px] font-semibold text-text">Agenda del día</h1>
-        <p className="tabular text-sm text-text-muted">{formatoFechaLarga(hoy)}</p>
+      <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-[22px] font-semibold text-text">Agenda del día</h1>
+          <p className="tabular text-sm text-text-muted">{formatoFechaLarga(hoy)}</p>
+        </div>
+        <Link
+          href="/panel/agenda/nueva"
+          className="h-10 shrink-0 rounded-md bg-navy px-4 text-sm font-medium leading-10 text-text-inverse hover:bg-navy-deep"
+        >
+          + Nueva cita
+        </Link>
       </header>
       <VistaAgenda citas={citas} />
     </div>

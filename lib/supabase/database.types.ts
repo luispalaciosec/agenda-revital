@@ -1383,6 +1383,13 @@ export type Database = {
         Args: { p_clave: string; p_default?: Json }
         Returns: Json
       }
+      precio_vigente_servicio: {
+        Args: { p_servicio_id: string }
+        Returns: {
+          lista_precio_id: string
+          precio: number
+        }[]
+      }
       recalcular_visibilidad_especialidad: {
         Args: { p_especialidad_id: string }
         Returns: undefined
