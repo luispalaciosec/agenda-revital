@@ -34,6 +34,12 @@ Especialidades visibles para el bot (`visible_bot = true`, `activa = true`).
 [{ "fecha": "2026-09-01", "franjas": [{ "inicio": "2026-09-01T19:30:00.000Z", "fin": "2026-09-01T19:50:00.000Z", "cupos_disponibles": 1, "medico_id": "uuid", "consultorio_id": null }] }]
 ```
 
+### `GET /api/v1/servicios?especialidad={slug}`
+Servicios agendables de una especialidad, con su precio PVP/promocional (nunca aseguradora/convenio). Necesario antes de `POST /citas`, que exige `servicio_id`.
+```json
+[{ "id": "uuid", "descripcion": "Consulta de ginecología", "duracion_min": 20, "requiere_aprobacion": false, "preparacion_previa": null, "precio": 25 }]
+```
+
 ### `POST /api/v1/pacientes/buscar`
 ```json
 { "documento": "0100000000" }
