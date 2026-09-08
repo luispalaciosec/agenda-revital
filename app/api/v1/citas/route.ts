@@ -5,6 +5,7 @@ import { crearCitaPublica } from "@/lib/citas/crear-publica";
 import { listarCitasPorContacto } from "@/lib/citas/listar-publicas";
 import { mensajeParaPaciente } from "@/lib/citas/mensaje-paciente";
 import { crearClienteServicio } from "@/lib/supabase/service-role";
+import { leerConfiguracionServicio } from "@/lib/configuracion-servicio";
 
 export async function POST(request: Request) {
   const auth = await autenticarApi(request);
@@ -46,15 +47,23 @@ export async function POST(request: Request) {
             fbclid: body.atribucion.fbclid,
             gclid: body.atribucion.gclid,
             ttclid: body.atribucion.ttclid,
+            ctwaClid: body.atribucion.ctwaClid,
           }
         : undefined,
     });
+
+    const infoPractica = await leerConfiguracionServicio(["cita_anticipacion_minutos", "cita_info_pago", "cita_info_parqueo"]);
 
     const respuesta = {
       cita_id: cita.id,
       codigo_publico: cita.codigo_publico,
       estado: cita.estado,
-      mensaje_para_paciente: mensajeParaPaciente(cita.estado, cita.codigo_publico, cita.direccionSede),
+      mensaje_para_paciente: mensajeParaPaciente(cita.estado, cita.codigo_publico, {
+        direccionSede: cita.direccionSede,
+        anticipacionMinutos: infoPractica.get("cita_anticipacion_minutos") as number | null,
+        infoPago: infoPractica.get("cita_info_pago") as string | null,
+        infoParqueo: infoPractica.get("cita_info_parqueo") as string | null,
+      }),
     };
 
     if (idempotencyKey) {
