@@ -185,6 +185,7 @@ export type Database = {
           convenio_id: string | null
           creado_en: string
           creado_por: string | null
+          ctwa_clid: string | null
           especialidad_id: string
           estado: Database["public"]["Enums"]["estado_cita_enum"]
           fbclid: string | null
@@ -222,6 +223,7 @@ export type Database = {
           convenio_id?: string | null
           creado_en?: string
           creado_por?: string | null
+          ctwa_clid?: string | null
           especialidad_id: string
           estado?: Database["public"]["Enums"]["estado_cita_enum"]
           fbclid?: string | null
@@ -259,6 +261,7 @@ export type Database = {
           convenio_id?: string | null
           creado_en?: string
           creado_por?: string | null
+          ctwa_clid?: string | null
           especialidad_id?: string
           estado?: Database["public"]["Enums"]["estado_cita_enum"]
           fbclid?: string | null
@@ -1602,6 +1605,7 @@ export type Database = {
           convenio_id: string | null
           creado_en: string
           creado_por: string | null
+          ctwa_clid: string | null
           especialidad_id: string
           estado: Database["public"]["Enums"]["estado_cita_enum"]
           fbclid: string | null

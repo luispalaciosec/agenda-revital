@@ -4,7 +4,7 @@ import { crearClienteServicio } from "@/lib/supabase/service-role";
 const ESTADOS_ACTIVOS = ["solicitada", "en_gestion", "confirmada"] as const;
 
 const SELECT_CITA_PUBLICA =
-  "id, codigo_publico, inicio, fin, estado, precio_aplicado, reprogramaciones_count, especialidad_id, medico_id, paciente:pacientes(nombres, apellidos), medico:medicos(nombres, apellidos, titulo), especialidad:especialidades(nombre), servicio:servicios(descripcion), consultorio:consultorios(nombre)";
+  "id, codigo_publico, inicio, fin, estado, precio_aplicado, reprogramaciones_count, especialidad_id, medico_id, paciente:pacientes(nombres, apellidos), medico:medicos(nombres, apellidos, titulo), especialidad:especialidades(nombre, slug), servicio:servicios(descripcion), consultorio:consultorios(nombre)";
 
 /** GET /api/v1/citas?contacto=&estado=activas y el listado de /mis-citas. */
 export async function listarCitasPorContacto(celular: string, soloActivas: boolean) {

@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       cita_id: cita.id,
       codigo_publico: cita.codigo_publico,
       estado: cita.estado,
-      mensaje_para_paciente: mensajeParaPaciente(cita.estado, cita.codigo_publico),
+      mensaje_para_paciente: mensajeParaPaciente(cita.estado, cita.codigo_publico, cita.direccionSede),
     };
 
     if (idempotencyKey) {

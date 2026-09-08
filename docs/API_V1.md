@@ -84,10 +84,12 @@ o
   "paciente_id": "uuid (si ya existe)",
   "paciente_nuevo": { "tipoDocumento": "cedula", "documento": "...", "nombres": "...", "apellidos": "...", "fechaNacimiento": "1990-01-01" },
   "consentimiento_marketing": false,
-  "atribucion": { "utm_source": "...", "fbclid": "...", "gclid": "...", "ttclid": "..." }
+  "atribucion": { "utmSource": "...", "fbclid": "...", "gclid": "...", "ttclid": "...", "ctwaClid": "..." }
 }
 ```
 Manda `paciente_id` **o** `paciente_nuevo`, no ambos.
+
+`atribucion.ctwaClid`: si la conversación de WhatsApp vino de un clic en un anuncio "Click to WhatsApp", este es el `ctwa_clid` que Meta manda en el objeto `referral` del primer mensaje entrante. Es **obligatorio** para que el evento de Meta Conversions API se envíe en citas del canal `bot` — sin él, Meta rechaza el evento y no se manda nada (no es un error, simplemente no hay atribución que reportar).
 
 Respuesta (`201`):
 ```json

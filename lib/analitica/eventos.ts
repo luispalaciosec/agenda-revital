@@ -12,11 +12,20 @@ export async function dispararEventoAgendamiento(citaId: string): Promise<void> 
   const supabase = crearClienteServicio();
   const { data: cita } = await supabase
     .from("citas")
-    .select("canal, precio_aplicado, fbclid, gclid, ttclid")
+    .select("canal, precio_aplicado, fbclid, gclid, ttclid, ctwa_clid, contacto:contactos(celular)")
     .eq("id", citaId)
     .maybeSingle();
   if (!cita || (cita.canal !== "bot" && cita.canal !== "web")) return;
 
-  const evento = { valor: cita.precio_aplicado, moneda: "USD", fbclid: cita.fbclid, gclid: cita.gclid, ttclid: cita.ttclid };
+  const evento = {
+    valor: cita.precio_aplicado,
+    moneda: "USD",
+    fbclid: cita.fbclid,
+    gclid: cita.gclid,
+    ttclid: cita.ttclid,
+    ctwaClid: cita.ctwa_clid,
+    celular: cita.contacto?.celular ?? null,
+    canal: cita.canal,
+  };
   await Promise.all(obtenerProveedoresConversion().map((p) => p.enviarAgendamiento(evento).catch(() => undefined)));
 }

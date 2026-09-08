@@ -26,6 +26,7 @@ const EsquemaAtribucion = z.object({
   fbclid: z.string().optional(),
   gclid: z.string().optional(),
   ttclid: z.string().optional(),
+  ctwaClid: z.string().optional(),
   referrer: z.string().optional(),
 });
 
@@ -61,7 +62,7 @@ export async function crearCitaPublica(entradaCruda: EntradaCrearCitaPublica) {
   const entrada = EsquemaCrearCitaPublica.parse(entradaCruda);
   const supabase = crearClienteServicio();
 
-  const { data: sede, error: errorSede } = await supabase.from("sedes").select("id").limit(1).single();
+  const { data: sede, error: errorSede } = await supabase.from("sedes").select("id, direccion").limit(1).single();
   if (errorSede || !sede) throw new Error("No hay sede configurada");
 
   const { data: servicio, error: errorServicio } = await supabase
@@ -156,6 +157,7 @@ export async function crearCitaPublica(entradaCruda: EntradaCrearCitaPublica) {
         fbclid: atribucion?.fbclid || null,
         gclid: atribucion?.gclid || null,
         ttclid: atribucion?.ttclid || null,
+        ctwa_clid: atribucion?.ctwaClid || null,
         referrer: atribucion?.referrer || null,
       })
       .select("id, codigo_publico, estado")
@@ -195,7 +197,7 @@ export async function crearCitaPublica(entradaCruda: EntradaCrearCitaPublica) {
         });
         await dispararEventoAgendamiento(cita.id);
       }
-      return cita;
+      return { ...cita, direccionSede: sede.direccion };
     }
     if (error.code === "23505") continue;
     throw error;
