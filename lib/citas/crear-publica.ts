@@ -18,16 +18,16 @@ const EsquemaPacienteNuevo = z.object({
 });
 
 const EsquemaAtribucion = z.object({
-  utmSource: z.string().optional(),
-  utmMedium: z.string().optional(),
-  utmCampaign: z.string().optional(),
-  utmContent: z.string().optional(),
-  utmTerm: z.string().optional(),
-  fbclid: z.string().optional(),
-  gclid: z.string().optional(),
-  ttclid: z.string().optional(),
-  ctwaClid: z.string().optional(),
-  referrer: z.string().optional(),
+  utmSource: z.string().nullish(),
+  utmMedium: z.string().nullish(),
+  utmCampaign: z.string().nullish(),
+  utmContent: z.string().nullish(),
+  utmTerm: z.string().nullish(),
+  fbclid: z.string().nullish(),
+  gclid: z.string().nullish(),
+  ttclid: z.string().nullish(),
+  ctwaClid: z.string().nullish(),
+  referrer: z.string().nullish(),
 });
 
 const EsquemaCrearCitaPublica = z.object({
