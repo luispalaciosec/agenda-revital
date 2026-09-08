@@ -14,7 +14,7 @@ export function mensajeParaPaciente(estado: EstadoCita, codigoPublico: string | 
   const codigo = codigoPublico ?? "";
   switch (estado) {
     case "confirmada": {
-      const partes = [`¡Listo! Tu cita quedó confirmada${codigo ? ` (código ${codigo})` : ""}. 😊`];
+      const partes = [`¡Listo! Tu cita quedó confirmada${codigo ? ` (código ${codigo})` : ""}.`];
       if (info?.direccionSede) partes.push(`Nos encontramos en ${info.direccionSede}.`);
       if (info?.anticipacionMinutos) partes.push(`Te recomendamos llegar unos ${info.anticipacionMinutos} minutos antes.`);
       if (info?.infoPago) partes.push(info.infoPago);
