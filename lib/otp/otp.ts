@@ -37,7 +37,7 @@ export async function solicitarOtp(celular: string): Promise<{ otpId: string; co
     .single();
   if (error) throw error;
 
-  await obtenerProveedorWhatsApp().enviar(celular, `Tu código de Agenda Revital es ${codigo}. Válido por ${VALIDO_MINUTOS} minutos.`);
+  await obtenerProveedorWhatsApp().enviarOtp(celular, codigo);
 
   return { otpId: data.id, codigoDev: enModoDesarrollo() ? codigo : null };
 }
