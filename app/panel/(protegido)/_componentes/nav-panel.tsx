@@ -14,12 +14,13 @@ import {
   BarChart3,
   Megaphone,
   Settings,
+  UserCog,
   type LucideIcon,
 } from "lucide-react";
 import { crearClienteNavegador } from "@/lib/supabase/client";
 import isotipo from "@/app/assets/favicon.png";
 
-const ITEMS_NAV: Array<{ href: string; etiqueta: string; icono: LucideIcon }> = [
+const ITEMS_NAV: Array<{ href: string; etiqueta: string; icono: LucideIcon; roles?: string[] }> = [
   { href: "/panel/agenda", etiqueta: "Agenda del día", icono: CalendarDays },
   { href: "/panel/agenda-semanal", etiqueta: "Agenda semanal", icono: CalendarRange },
   { href: "/panel/sala-espera", etiqueta: "Sala de espera", icono: Users },
@@ -27,8 +28,9 @@ const ITEMS_NAV: Array<{ href: string; etiqueta: string; icono: LucideIcon }> = 
   { href: "/panel/lista-espera", etiqueta: "Lista de espera", icono: Hourglass },
   { href: "/panel/pacientes", etiqueta: "Pacientes", icono: Contact },
   { href: "/panel/catalogo", etiqueta: "Catálogo", icono: LayoutGrid },
-  { href: "/panel/reportes", etiqueta: "Reportes", icono: BarChart3 },
-  { href: "/panel/marketing", etiqueta: "Marketing", icono: Megaphone },
+  { href: "/panel/reportes", etiqueta: "Reportes", icono: BarChart3, roles: ["admin", "supervisor"] },
+  { href: "/panel/marketing", etiqueta: "Marketing", icono: Megaphone, roles: ["admin", "supervisor"] },
+  { href: "/panel/usuarios", etiqueta: "Usuarios", icono: UserCog, roles: ["admin"] },
   { href: "/panel/configuracion", etiqueta: "Configuración", icono: Settings },
 ];
 
@@ -78,7 +80,7 @@ export function NavPanel({ nombre, rol, solicitudesPendientes }: NavPanelProps) 
       </div>
 
       <nav className="scrollbar-none flex gap-1 overflow-x-auto border-t border-line px-2" aria-label="Panel">
-        {ITEMS_NAV.map((item) => {
+        {ITEMS_NAV.filter((item) => !item.roles || item.roles.includes(rol)).map((item) => {
           const activo = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icono = item.icono;
           return (

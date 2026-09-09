@@ -1,6 +1,7 @@
 import { crearClienteServidor } from "@/lib/supabase/server";
 import { calcularResumenAtribucion } from "@/lib/marketing/atribucion";
 import { hoyGuayaquil } from "@/lib/formato";
+import { exigirRol } from "@/lib/seguridad/exigir-rol";
 import { VistaMarketing } from "./_componentes/vista-marketing";
 
 function primerDiaDelMes(fecha: string): string {
@@ -12,6 +13,8 @@ export default async function PaginaMarketing({
 }: {
   searchParams: Promise<{ desde?: string; hasta?: string }>;
 }) {
+  await exigirRol(["admin", "supervisor"]);
+
   const { desde: desdeParam, hasta: hastaParam } = await searchParams;
   const hoy = hoyGuayaquil();
   const desde = desdeParam || primerDiaDelMes(hoy);

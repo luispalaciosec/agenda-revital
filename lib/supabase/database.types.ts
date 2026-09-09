@@ -1739,7 +1739,7 @@ export type Database = {
         | "MADRE"
         | "OTRO"
       resultado_solicitud_enum: "aceptada" | "rechazada" | "vencida"
-      rol_usuario_enum: "admin" | "admisionista" | "medico"
+      rol_usuario_enum: "admin" | "admisionista" | "medico" | "supervisor"
       tipo_consentimiento_enum: "tratamiento_datos" | "marketing"
       tipo_documento_enum: "cedula" | "pasaporte"
       tipo_excepcion_enum: "feriado" | "vacaciones" | "ausencia" | "bloqueo"
@@ -1919,7 +1919,7 @@ export const Constants = {
         "OTRO",
       ],
       resultado_solicitud_enum: ["aceptada", "rechazada", "vencida"],
-      rol_usuario_enum: ["admin", "admisionista", "medico"],
+      rol_usuario_enum: ["admin", "admisionista", "medico", "supervisor"],
       tipo_consentimiento_enum: ["tratamiento_datos", "marketing"],
       tipo_documento_enum: ["cedula", "pasaporte"],
       tipo_excepcion_enum: ["feriado", "vacaciones", "ausencia", "bloqueo"],

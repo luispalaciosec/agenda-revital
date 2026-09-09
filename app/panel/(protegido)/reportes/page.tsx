@@ -1,5 +1,6 @@
 import { obtenerResumenReportes } from "@/lib/reportes";
 import { hoyGuayaquil } from "@/lib/formato";
+import { exigirRol } from "@/lib/seguridad/exigir-rol";
 import { VistaReportes } from "./_componentes/vista-reportes";
 
 function primerDiaDelMes(fecha: string): string {
@@ -11,6 +12,8 @@ export default async function PaginaReportes({
 }: {
   searchParams: Promise<{ desde?: string; hasta?: string }>;
 }) {
+  await exigirRol(["admin", "supervisor"]);
+
   const { desde: desdeParam, hasta: hastaParam } = await searchParams;
   const hoy = hoyGuayaquil();
   const desde = desdeParam || primerDiaDelMes(hoy);
