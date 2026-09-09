@@ -12,6 +12,7 @@ import {
   Contact,
   LayoutGrid,
   BarChart3,
+  Megaphone,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -27,6 +28,7 @@ const ITEMS_NAV: Array<{ href: string; etiqueta: string; icono: LucideIcon }> = 
   { href: "/panel/pacientes", etiqueta: "Pacientes", icono: Contact },
   { href: "/panel/catalogo", etiqueta: "Catálogo", icono: LayoutGrid },
   { href: "/panel/reportes", etiqueta: "Reportes", icono: BarChart3 },
+  { href: "/panel/marketing", etiqueta: "Marketing", icono: Megaphone },
   { href: "/panel/configuracion", etiqueta: "Configuración", icono: Settings },
 ];
 

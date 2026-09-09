@@ -1438,6 +1438,53 @@ export type Database = {
           },
         ]
       }
+      promociones: {
+        Row: {
+          activa: boolean
+          actualizado_en: string
+          creado_en: string
+          descripcion: string | null
+          especialidad_id: string | null
+          id: string
+          imagen_url: string | null
+          titulo: string
+          vigente_desde: string
+          vigente_hasta: string | null
+        }
+        Insert: {
+          activa?: boolean
+          actualizado_en?: string
+          creado_en?: string
+          descripcion?: string | null
+          especialidad_id?: string | null
+          id?: string
+          imagen_url?: string | null
+          titulo: string
+          vigente_desde?: string
+          vigente_hasta?: string | null
+        }
+        Update: {
+          activa?: boolean
+          actualizado_en?: string
+          creado_en?: string
+          descripcion?: string | null
+          especialidad_id?: string | null
+          id?: string
+          imagen_url?: string | null
+          titulo?: string
+          vigente_desde?: string
+          vigente_hasta?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promociones_especialidad_id_fkey"
+            columns: ["especialidad_id"]
+            isOneToOne: false
+            referencedRelation: "especialidades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       solicitudes_gestion: {
         Row: {
           asignada_a: string | null
