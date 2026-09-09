@@ -29,7 +29,8 @@ export default async function PaginaAgendaSemanal({
        paciente:pacientes(nombres, apellidos),
        medico:medicos(nombres, apellidos, titulo),
        especialidad:especialidades(nombre),
-       servicio:servicios(descripcion)`
+       servicio:servicios(descripcion),
+       consultorio:consultorios(nombre)`
     )
     .gte("fecha_local", lunes)
     .lte("fecha_local", sabado)
@@ -110,6 +111,10 @@ export default async function PaginaAgendaSemanal({
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-text">{c.paciente ? `${c.paciente.nombres} ${c.paciente.apellidos}` : "—"}</p>
                         <p className="truncate text-text-muted">{c.servicio?.descripcion ?? c.especialidad?.nombre}</p>
+                        <p className="truncate text-[11.5px] text-text-muted">
+                          {c.medico ? `${c.medico.titulo ?? ""} ${c.medico.nombres} ${c.medico.apellidos}`.trim() : "Sin médico asignado"}
+                          {c.consultorio?.nombre ? ` · ${c.consultorio.nombre}` : ""}
+                        </p>
                       </div>
                       <BadgeEstado estado={c.estado} />
                     </li>

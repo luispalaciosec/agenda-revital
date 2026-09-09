@@ -170,6 +170,11 @@ function FilaCita({ cita, mostrarConsultorio }: { cita: CitaAgenda; mostrarConsu
         </span>
         <span className="text-[13px] text-text-muted">{cita.servicio?.descripcion ?? cita.especialidad?.nombre ?? "—"}</span>
         {mostrarConsultorio && cita.consultorio && <span className="text-[13px] text-text-muted">{cita.consultorio.nombre}</span>}
+        {!mostrarConsultorio && (
+          <span className="text-[13px] text-text-muted">
+            {cita.medico ? `${cita.medico.titulo ?? ""} ${cita.medico.nombres} ${cita.medico.apellidos}`.trim() : "Sin médico asignado"}
+          </span>
+        )}
         <BadgeEstado estado={cita.estado} />
 
         {!confirmandoCancelacion && (
