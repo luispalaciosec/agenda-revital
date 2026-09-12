@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { exigirRol } from "@/lib/seguridad/exigir-rol";
 import { formatoFechaCorta, formatoHora, hoyGuayaquil } from "@/lib/formato";
 import { aLocal, aUtc, sumarDias } from "@/lib/disponibilidad/tiempo";
 import { BadgeEstado } from "../agenda/_componentes/badge-estado";
@@ -15,6 +16,7 @@ export default async function PaginaAgendaSemanal({
 }: {
   searchParams: Promise<{ semana?: string }>;
 }) {
+  await exigirRol(["admin", "supervisor", "admisionista"]);
   const { semana } = await searchParams;
   const lunes = lunesDeLaSemana(semana || hoyGuayaquil());
   const sabado = sumarDias(lunes, 5);

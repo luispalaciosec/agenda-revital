@@ -1,7 +1,9 @@
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { exigirRol } from "@/lib/seguridad/exigir-rol";
 import { VistaSolicitudes, type SolicitudPendiente } from "./_componentes/vista-solicitudes";
 
 export default async function PaginaSolicitudes() {
+  await exigirRol(["admin", "supervisor", "admisionista"]);
   const supabase = await crearClienteServidor();
 
   const { data, error } = await supabase

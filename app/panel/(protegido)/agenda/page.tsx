@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { exigirRol } from "@/lib/seguridad/exigir-rol";
 import { formatoFechaLarga, hoyGuayaquil } from "@/lib/formato";
 import { VistaAgenda, type CitaAgenda } from "./_componentes/vista-agenda";
 
 export default async function PaginaAgenda() {
+  await exigirRol(["admin", "supervisor", "admisionista"]);
   const supabase = await crearClienteServidor();
   const hoy = hoyGuayaquil();
 

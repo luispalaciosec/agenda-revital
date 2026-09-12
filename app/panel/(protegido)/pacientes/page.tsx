@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { buscarPacientes } from "@/lib/citas/buscar-pacientes-lista";
+import { exigirRol } from "@/lib/seguridad/exigir-rol";
 
 export default async function PaginaPacientes({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  await exigirRol(["admin", "supervisor", "admisionista"]);
   const { q } = await searchParams;
   const resultados = q ? await buscarPacientes(q) : [];
 

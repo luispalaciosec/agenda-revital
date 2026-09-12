@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { accionInvitarUsuario, accionActualizarRolUsuario, accionActualizarFlagActivoUsuario } from "../_acciones";
+import {
+  accionInvitarUsuario,
+  accionActualizarRolUsuario,
+  accionActualizarFlagActivoUsuario,
+  accionActualizarMedicoUsuario,
+} from "../_acciones";
 import { formatoFechaDMY } from "@/lib/formato";
 import type { Database } from "@/lib/supabase/database.types";
 import type { DatosInvitacion } from "@/lib/usuarios/gestionar";
@@ -19,6 +24,14 @@ interface Usuario {
   activo: boolean;
   ultimo_acceso: string | null;
   creado_en: string;
+  medico_id: string | null;
+  medico: { nombres: string; apellidos: string } | null;
+}
+
+interface MedicoParaVincular {
+  id: string;
+  nombres: string;
+  apellidos: string;
 }
 
 const clasesCampo =
@@ -32,16 +45,25 @@ const ETIQUETAS_ROL: Record<RolUsuario, string> = {
   medico: "Médico",
 };
 
-const ROLES_ASIGNABLES: RolUsuario[] = ["admin", "supervisor", "admisionista"];
+const ROLES_ASIGNABLES: RolUsuario[] = ["admin", "supervisor", "admisionista", "medico"];
 
 const FORMULARIO_VACIO: DatosInvitacion = {
   correo: "",
   nombres: "",
   apellidos: "",
   rol: "admisionista",
+  medicoId: null,
 };
 
-export function VistaUsuarios({ usuarios, idUsuarioActual }: { usuarios: Usuario[]; idUsuarioActual: string }) {
+export function VistaUsuarios({
+  usuarios,
+  medicos,
+  idUsuarioActual,
+}: {
+  usuarios: Usuario[];
+  medicos: MedicoParaVincular[];
+  idUsuarioActual: string;
+}) {
   const router = useRouter();
   const [mostrarForm, setMostrarForm] = useState(false);
   const [form, setForm] = useState<DatosInvitacion>(FORMULARIO_VACIO);
@@ -52,6 +74,10 @@ export function VistaUsuarios({ usuarios, idUsuarioActual }: { usuarios: Usuario
   async function invitar() {
     if (!form.correo.trim() || !form.nombres.trim() || !form.apellidos.trim()) {
       setError("Correo, nombres y apellidos son obligatorios.");
+      return;
+    }
+    if (form.rol === "medico" && !form.medicoId) {
+      setError("Elige a qué médico corresponde este acceso.");
       return;
     }
     setEnviando(true);
@@ -70,6 +96,11 @@ export function VistaUsuarios({ usuarios, idUsuarioActual }: { usuarios: Usuario
 
   async function cambiarRol(id: string, rol: RolUsuario) {
     await accionActualizarRolUsuario(id, rol);
+    router.refresh();
+  }
+
+  async function cambiarMedico(id: string, medicoId: string) {
+    await accionActualizarMedicoUsuario(id, medicoId || null);
     router.refresh();
   }
 
@@ -121,7 +152,11 @@ export function VistaUsuarios({ usuarios, idUsuarioActual }: { usuarios: Usuario
             </div>
             <div>
               <label className={clasesEtiqueta}>Rol</label>
-              <select className={clasesCampo} value={form.rol} onChange={(e) => setForm({ ...form, rol: e.target.value as RolUsuario })}>
+              <select
+                className={clasesCampo}
+                value={form.rol}
+                onChange={(e) => setForm({ ...form, rol: e.target.value as RolUsuario, medicoId: null })}
+              >
                 {ROLES_ASIGNABLES.map((r) => (
                   <option key={r} value={r}>
                     {ETIQUETAS_ROL[r]}
@@ -129,6 +164,23 @@ export function VistaUsuarios({ usuarios, idUsuarioActual }: { usuarios: Usuario
                 ))}
               </select>
             </div>
+            {form.rol === "medico" && (
+              <div>
+                <label className={clasesEtiqueta}>Médico vinculado</label>
+                <select
+                  className={clasesCampo}
+                  value={form.medicoId ?? ""}
+                  onChange={(e) => setForm({ ...form, medicoId: e.target.value || null })}
+                >
+                  <option value="">Elige un médico…</option>
+                  {medicos.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.nombres} {m.apellidos}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
           {error && <p className="mt-3 text-[13px] text-danger">{error}</p>}
           <div className="mt-4 flex gap-2">
@@ -180,6 +232,20 @@ export function VistaUsuarios({ usuarios, idUsuarioActual }: { usuarios: Usuario
                     </option>
                   ))}
                 </select>
+                {u.rol === "medico" && (
+                  <select
+                    className="h-8 rounded-md border border-line-strong bg-surface px-2 text-[12.5px] text-text"
+                    value={u.medico_id ?? ""}
+                    onChange={(e) => cambiarMedico(u.id, e.target.value)}
+                  >
+                    <option value="">Sin vincular</option>
+                    {medicos.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.nombres} {m.apellidos}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 <span
                   className={`rounded-full px-2.5 py-1 text-[12px] font-medium ${
                     u.activo ? "bg-success-bg text-success" : "bg-surface-sunken text-text-muted"

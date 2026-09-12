@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarDays,
   CalendarRange,
-  Users,
+  Route,
   Inbox,
   Hourglass,
   Contact,
@@ -16,6 +16,7 @@ import {
   Megaphone,
   Settings,
   UserCog,
+  Stethoscope,
   Menu,
   X,
   type LucideIcon,
@@ -23,14 +24,17 @@ import {
 import { crearClienteNavegador } from "@/lib/supabase/client";
 import isotipo from "@/app/assets/favicon.png";
 
+const ROLES_STAFF_ADMINISTRATIVO = ["admin", "supervisor", "admisionista"];
+
 const ITEMS_NAV: Array<{ href: string; etiqueta: string; icono: LucideIcon; roles?: string[] }> = [
-  { href: "/panel/agenda", etiqueta: "Agenda del día", icono: CalendarDays },
-  { href: "/panel/agenda-semanal", etiqueta: "Agenda semanal", icono: CalendarRange },
-  { href: "/panel/sala-espera", etiqueta: "Sala de espera", icono: Users },
-  { href: "/panel/solicitudes", etiqueta: "Solicitudes", icono: Inbox },
-  { href: "/panel/lista-espera", etiqueta: "Lista de espera", icono: Hourglass },
-  { href: "/panel/pacientes", etiqueta: "Pacientes", icono: Contact },
-  { href: "/panel/catalogo", etiqueta: "Catálogo", icono: LayoutGrid },
+  { href: "/panel/mi-agenda", etiqueta: "Mi agenda", icono: Stethoscope, roles: ["medico"] },
+  { href: "/panel/agenda", etiqueta: "Agenda del día", icono: CalendarDays, roles: ROLES_STAFF_ADMINISTRATIVO },
+  { href: "/panel/agenda-semanal", etiqueta: "Agenda semanal", icono: CalendarRange, roles: ROLES_STAFF_ADMINISTRATIVO },
+  { href: "/panel/seguimiento", etiqueta: "Seguimiento", icono: Route, roles: ROLES_STAFF_ADMINISTRATIVO },
+  { href: "/panel/solicitudes", etiqueta: "Solicitudes", icono: Inbox, roles: ROLES_STAFF_ADMINISTRATIVO },
+  { href: "/panel/lista-espera", etiqueta: "Lista de espera", icono: Hourglass, roles: ROLES_STAFF_ADMINISTRATIVO },
+  { href: "/panel/pacientes", etiqueta: "Pacientes", icono: Contact, roles: ROLES_STAFF_ADMINISTRATIVO },
+  { href: "/panel/catalogo", etiqueta: "Catálogo", icono: LayoutGrid, roles: ROLES_STAFF_ADMINISTRATIVO },
   { href: "/panel/reportes", etiqueta: "Reportes", icono: BarChart3, roles: ["admin", "supervisor"] },
   { href: "/panel/marketing", etiqueta: "Marketing", icono: Megaphone, roles: ["admin", "supervisor"] },
   { href: "/panel/usuarios", etiqueta: "Usuarios", icono: UserCog, roles: ["admin"] },

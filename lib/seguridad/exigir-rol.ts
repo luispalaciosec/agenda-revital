@@ -14,5 +14,8 @@ export async function exigirRol(rolesPermitidos: RolUsuario[]) {
   if (!user) redirect("/panel/login");
 
   const { data: usuario } = await supabase.from("usuarios").select("rol").eq("auth_user_id", user.id).single();
-  if (!usuario || !rolesPermitidos.includes(usuario.rol)) redirect("/panel/agenda");
+  if (!usuario) redirect("/panel/login");
+  if (!rolesPermitidos.includes(usuario.rol)) {
+    redirect(usuario.rol === "medico" ? "/panel/mi-agenda" : "/panel/agenda");
+  }
 }

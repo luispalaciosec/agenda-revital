@@ -10,6 +10,8 @@ export interface DatosInvitacion {
   nombres: string;
   apellidos: string;
   rol: RolUsuario;
+  /** Solo aplica cuando rol="medico": a qué registro clínico corresponde este login. */
+  medicoId?: string | null;
 }
 
 async function exigirAdmin() {
@@ -26,8 +28,16 @@ export async function listarUsuarios() {
   const supabase = await crearClienteServidor();
   const { data, error } = await supabase
     .from("usuarios")
-    .select("id, nombres, apellidos, correo, celular, rol, activo, ultimo_acceso, creado_en")
+    .select("id, nombres, apellidos, correo, celular, rol, activo, ultimo_acceso, creado_en, medico_id, medico:medicos(nombres, apellidos)")
     .order("creado_en", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+/** Médicos activos disponibles para vincular a un usuario con rol="medico". */
+export async function listarMedicosParaVincular() {
+  const supabase = await crearClienteServidor();
+  const { data, error } = await supabase.from("medicos").select("id, nombres, apellidos").eq("activo", true).order("nombres");
   if (error) throw error;
   return data;
 }
@@ -50,6 +60,7 @@ export async function invitarUsuario(datos: DatosInvitacion) {
     apellidos: datos.apellidos,
     correo: datos.correo,
     rol: datos.rol,
+    medico_id: datos.rol === "medico" ? (datos.medicoId ?? null) : null,
     activo: true,
   });
   if (errorFila) throw errorFila;
@@ -58,6 +69,13 @@ export async function invitarUsuario(datos: DatosInvitacion) {
 export async function actualizarRolUsuario(id: string, rol: RolUsuario) {
   const supabase = await crearClienteServidor();
   const { error } = await supabase.from("usuarios").update({ rol }).eq("id", id);
+  if (error) throw error;
+}
+
+/** Solo admin puede vincular un usuario a un médico (aplicado también por trigger en la base). */
+export async function actualizarMedicoUsuario(id: string, medicoId: string | null) {
+  const supabase = await crearClienteServidor();
+  const { error } = await supabase.from("usuarios").update({ medico_id: medicoId }).eq("id", id);
   if (error) throw error;
 }
 

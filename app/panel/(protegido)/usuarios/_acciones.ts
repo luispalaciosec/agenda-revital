@@ -1,7 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { invitarUsuario, actualizarRolUsuario, actualizarFlagActivoUsuario, type DatosInvitacion } from "@/lib/usuarios/gestionar";
+import {
+  invitarUsuario,
+  actualizarRolUsuario,
+  actualizarFlagActivoUsuario,
+  actualizarMedicoUsuario,
+  type DatosInvitacion,
+} from "@/lib/usuarios/gestionar";
 import type { Database } from "@/lib/supabase/database.types";
 
 type RolUsuario = Database["public"]["Enums"]["rol_usuario_enum"];
@@ -33,6 +39,16 @@ export async function accionActualizarRolUsuario(id: string, rol: RolUsuario) {
 export async function accionActualizarFlagActivoUsuario(id: string, activo: boolean) {
   try {
     await actualizarFlagActivoUsuario(id, activo);
+    revalidatePath("/panel/usuarios");
+    return { ok: true as const };
+  } catch (error) {
+    return { ok: false as const, mensaje: mensajeDeError(error) };
+  }
+}
+
+export async function accionActualizarMedicoUsuario(id: string, medicoId: string | null) {
+  try {
+    await actualizarMedicoUsuario(id, medicoId);
     revalidatePath("/panel/usuarios");
     return { ok: true as const };
   } catch (error) {

@@ -1,7 +1,9 @@
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { exigirRol } from "@/lib/seguridad/exigir-rol";
 import { VistaCatalogo } from "./_componentes/vista-catalogo";
 
 export default async function PaginaCatalogo() {
+  await exigirRol(["admin", "supervisor", "admisionista"]);
   const supabase = await crearClienteServidor();
 
   const { data: sede } = await supabase.from("sedes").select("id").limit(1).single();

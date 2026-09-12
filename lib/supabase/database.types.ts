@@ -201,6 +201,8 @@ export type Database = {
           nota_admision: string | null
           paciente_id: string
           precio_aplicado: number
+          punto_atencion_desde: string | null
+          punto_atencion_id: string | null
           referrer: string | null
           reprogramaciones_count: number
           sede_id: string
@@ -239,6 +241,8 @@ export type Database = {
           nota_admision?: string | null
           paciente_id: string
           precio_aplicado: number
+          punto_atencion_desde?: string | null
+          punto_atencion_id?: string | null
           referrer?: string | null
           reprogramaciones_count?: number
           sede_id: string
@@ -277,6 +281,8 @@ export type Database = {
           nota_admision?: string | null
           paciente_id?: string
           precio_aplicado?: number
+          punto_atencion_desde?: string | null
+          punto_atencion_id?: string | null
           referrer?: string | null
           reprogramaciones_count?: number
           sede_id?: string
@@ -343,6 +349,13 @@ export type Database = {
             columns: ["paciente_id"]
             isOneToOne: false
             referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_punto_atencion_id_fkey"
+            columns: ["punto_atencion_id"]
+            isOneToOne: false
+            referencedRelation: "puntos_atencion"
             referencedColumns: ["id"]
           },
           {
@@ -1542,6 +1555,7 @@ export type Database = {
           correo: string
           creado_en: string
           id: string
+          medico_id: string | null
           mfa_habilitado: boolean
           nombres: string
           rol: Database["public"]["Enums"]["rol_usuario_enum"]
@@ -1556,6 +1570,7 @@ export type Database = {
           correo: string
           creado_en?: string
           id?: string
+          medico_id?: string | null
           mfa_habilitado?: boolean
           nombres: string
           rol: Database["public"]["Enums"]["rol_usuario_enum"]
@@ -1570,12 +1585,100 @@ export type Database = {
           correo?: string
           creado_en?: string
           id?: string
+          medico_id?: string | null
           mfa_habilitado?: boolean
           nombres?: string
           rol?: Database["public"]["Enums"]["rol_usuario_enum"]
           ultimo_acceso?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "usuarios_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: true
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      puntos_atencion: {
+        Row: {
+          activo: boolean
+          actualizado_en: string
+          creado_en: string
+          es_punto_llegada: boolean
+          es_punto_salida: boolean
+          id: string
+          nombre: string
+          orden: number
+        }
+        Insert: {
+          activo?: boolean
+          actualizado_en?: string
+          creado_en?: string
+          es_punto_llegada?: boolean
+          es_punto_salida?: boolean
+          id?: string
+          nombre: string
+          orden: number
+        }
+        Update: {
+          activo?: boolean
+          actualizado_en?: string
+          creado_en?: string
+          es_punto_llegada?: boolean
+          es_punto_salida?: boolean
+          id?: string
+          nombre?: string
+          orden?: number
+        }
         Relationships: []
+      }
+      cita_eventos: {
+        Row: {
+          cita_id: string
+          creado_en: string
+          creado_por: string | null
+          id: string
+          punto_id: string
+        }
+        Insert: {
+          cita_id: string
+          creado_en?: string
+          creado_por?: string | null
+          id?: string
+          punto_id: string
+        }
+        Update: {
+          cita_id?: string
+          creado_en?: string
+          creado_por?: string | null
+          id?: string
+          punto_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cita_eventos_cita_id_fkey"
+            columns: ["cita_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cita_eventos_creado_por_fkey"
+            columns: ["creado_por"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cita_eventos_punto_id_fkey"
+            columns: ["punto_id"]
+            isOneToOne: false
+            referencedRelation: "puntos_atencion"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -1617,6 +1720,55 @@ export type Database = {
       marcar_no_show_del_dia: {
         Args: { p_fecha: string; p_sede_id: string }
         Returns: number
+      }
+      mover_paciente_punto: {
+        Args: { p_cita_id: string; p_punto_id: string }
+        Returns: {
+          actualizado_en: string
+          aseguradora_id: string | null
+          atendida_en: string | null
+          canal: Database["public"]["Enums"]["canal_cita_enum"]
+          codigo_publico: string | null
+          consultorio_id: string | null
+          contacto_id: string
+          convenio_id: string | null
+          creado_en: string
+          creado_por: string | null
+          ctwa_clid: string | null
+          especialidad_id: string
+          estado: Database["public"]["Enums"]["estado_cita_enum"]
+          fbclid: string | null
+          fecha_local: string | null
+          fin: string
+          gclid: string | null
+          id: string
+          indice_cupo: number | null
+          inicio: string
+          lista_precio_id: string
+          llegada_en: string | null
+          medico_id: string | null
+          nota_admision: string | null
+          paciente_id: string
+          precio_aplicado: number
+          punto_atencion_desde: string | null
+          punto_atencion_id: string | null
+          referrer: string | null
+          reprogramaciones_count: number
+          sede_id: string
+          servicio_id: string
+          ttclid: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "citas"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       obtener_configuracion: {
         Args: { p_clave: string; p_default?: Json }

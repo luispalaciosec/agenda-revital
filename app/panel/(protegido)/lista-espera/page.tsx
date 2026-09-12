@@ -1,7 +1,9 @@
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { exigirRol } from "@/lib/seguridad/exigir-rol";
 import { VistaListaEspera, type EntradaListaEsperaVista } from "./_componentes/vista-lista-espera";
 
 export default async function PaginaListaEspera() {
+  await exigirRol(["admin", "supervisor", "admisionista"]);
   const supabase = await crearClienteServidor();
 
   const [{ data: especialidades }, { data: medicosVinculos }, { data: entradas }] = await Promise.all([
