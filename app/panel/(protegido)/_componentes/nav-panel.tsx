@@ -26,14 +26,16 @@ import isotipo from "@/app/assets/favicon.png";
 
 const ROLES_STAFF_ADMINISTRATIVO = ["admin", "supervisor", "admisionista"];
 
+const ROLES_STAFF_Y_MEDICO = [...ROLES_STAFF_ADMINISTRATIVO, "medico"];
+
 const ITEMS_NAV: Array<{ href: string; etiqueta: string; icono: LucideIcon; roles?: string[] }> = [
   { href: "/panel/mi-agenda", etiqueta: "Mi agenda", icono: Stethoscope, roles: ["medico"] },
   { href: "/panel/agenda", etiqueta: "Agenda del día", icono: CalendarDays, roles: ROLES_STAFF_ADMINISTRATIVO },
   { href: "/panel/agenda-semanal", etiqueta: "Agenda semanal", icono: CalendarRange, roles: ROLES_STAFF_ADMINISTRATIVO },
-  { href: "/panel/seguimiento", etiqueta: "Seguimiento", icono: Route, roles: ROLES_STAFF_ADMINISTRATIVO },
+  { href: "/panel/seguimiento", etiqueta: "Seguimiento", icono: Route, roles: ROLES_STAFF_Y_MEDICO },
   { href: "/panel/solicitudes", etiqueta: "Solicitudes", icono: Inbox, roles: ROLES_STAFF_ADMINISTRATIVO },
   { href: "/panel/lista-espera", etiqueta: "Lista de espera", icono: Hourglass, roles: ROLES_STAFF_ADMINISTRATIVO },
-  { href: "/panel/pacientes", etiqueta: "Pacientes", icono: Contact, roles: ROLES_STAFF_ADMINISTRATIVO },
+  { href: "/panel/pacientes", etiqueta: "Pacientes", icono: Contact, roles: ROLES_STAFF_Y_MEDICO },
   { href: "/panel/catalogo", etiqueta: "Catálogo", icono: LayoutGrid, roles: ROLES_STAFF_ADMINISTRATIVO },
   { href: "/panel/reportes", etiqueta: "Reportes", icono: BarChart3, roles: ["admin", "supervisor"] },
   { href: "/panel/marketing", etiqueta: "Marketing", icono: Megaphone, roles: ["admin", "supervisor"] },

@@ -4,7 +4,7 @@ import { formatoFechaLarga, hoyGuayaquil } from "@/lib/formato";
 import { VistaSeguimiento } from "./_componentes/vista-seguimiento";
 
 export default async function PaginaSeguimiento() {
-  await exigirRol(["admin", "supervisor", "admisionista"]);
+  await exigirRol(["admin", "supervisor", "admisionista", "medico"]);
 
   const [puntos, pacientes, porLlegar] = await Promise.all([listarPuntosAtencion(), obtenerTableroHoy(), obtenerPorLlegarHoy()]);
   const hoy = hoyGuayaquil();
