@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { exigirRol } from "@/lib/seguridad/exigir-rol";
 import { VistaConfiguracion, type FilaConfiguracion } from "./_componentes/vista-configuracion";
 
 const CATEGORIAS_STAFF = new Set(["agenda", "catalogo"]);
 
 export default async function PaginaConfiguracion() {
+  await exigirRol(["admin", "supervisor", "admisionista"]);
   const supabase = await crearClienteServidor();
 
   const {

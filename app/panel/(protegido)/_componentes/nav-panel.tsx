@@ -16,6 +16,7 @@ import {
   Megaphone,
   Settings,
   UserCog,
+  UserCircle,
   Stethoscope,
   Menu,
   X,
@@ -88,15 +89,27 @@ export function NavPanel({ nombre, rol, solicitudesPendientes }: NavPanelProps) 
             <div className="text-[12px] capitalize text-text-muted">{rol}</div>
           </div>
           <Link
-            href="/panel/configuracion"
-            aria-label="Configuración"
-            title="Configuración"
+            href="/panel/mi-perfil"
+            aria-label="Mi perfil"
+            title="Mi perfil"
             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-surface-sunken ${
-              esActivo("/panel/configuracion") ? "text-navy" : "text-text-muted"
+              esActivo("/panel/mi-perfil") ? "text-navy" : "text-text-muted"
             }`}
           >
-            <Settings size={19} strokeWidth={2} />
+            <UserCircle size={19} strokeWidth={2} />
           </Link>
+          {rol !== "medico" && (
+            <Link
+              href="/panel/configuracion"
+              aria-label="Configuración"
+              title="Configuración"
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-surface-sunken ${
+                esActivo("/panel/configuracion") ? "text-navy" : "text-text-muted"
+              }`}
+            >
+              <Settings size={19} strokeWidth={2} />
+            </Link>
+          )}
           <button
             type="button"
             onClick={cerrarSesion}

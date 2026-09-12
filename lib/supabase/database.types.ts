@@ -1554,6 +1554,7 @@ export type Database = {
           celular: string | null
           correo: string
           creado_en: string
+          foto_url: string | null
           id: string
           medico_id: string | null
           mfa_habilitado: boolean
@@ -1569,6 +1570,7 @@ export type Database = {
           celular?: string | null
           correo: string
           creado_en?: string
+          foto_url?: string | null
           id?: string
           medico_id?: string | null
           mfa_habilitado?: boolean
@@ -1584,6 +1586,7 @@ export type Database = {
           celular?: string | null
           correo?: string
           creado_en?: string
+          foto_url?: string | null
           id?: string
           medico_id?: string | null
           mfa_habilitado?: boolean
