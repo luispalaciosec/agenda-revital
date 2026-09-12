@@ -13,7 +13,7 @@ export default async function LayoutPanel({ children }: { children: React.ReactN
 
   const { data: usuario } = await supabase
     .from("usuarios")
-    .select("nombres, apellidos, rol, activo")
+    .select("nombres, apellidos, rol, activo, foto_url")
     .eq("auth_user_id", user.id)
     .single();
 
@@ -32,6 +32,7 @@ export default async function LayoutPanel({ children }: { children: React.ReactN
       <NavPanel
         nombre={`${usuario.nombres} ${usuario.apellidos}`}
         rol={usuario.rol}
+        fotoUrl={usuario.foto_url}
         solicitudesPendientes={solicitudesPendientes ?? 0}
       />
       <main className="flex-1 bg-surface-sunken">{children}</main>

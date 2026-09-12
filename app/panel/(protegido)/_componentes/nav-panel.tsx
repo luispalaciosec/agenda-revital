@@ -46,10 +46,35 @@ const ITEMS_NAV: Array<{ href: string; etiqueta: string; icono: LucideIcon; role
 interface NavPanelProps {
   nombre: string;
   rol: string;
+  fotoUrl: string | null;
   solicitudesPendientes: number;
 }
 
-export function NavPanel({ nombre, rol, solicitudesPendientes }: NavPanelProps) {
+function Avatar({ nombre, fotoUrl, size = 32 }: { nombre: string; fotoUrl: string | null; size?: number }) {
+  if (fotoUrl) {
+    return (
+      <span className="relative shrink-0 overflow-hidden rounded-full" style={{ width: size, height: size }}>
+        <Image src={fotoUrl} alt="" fill sizes={`${size}px`} className="object-cover" />
+      </span>
+    );
+  }
+  const iniciales = nombre
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p.charAt(0).toUpperCase())
+    .join("");
+  return (
+    <span
+      className="flex shrink-0 items-center justify-center rounded-full bg-surface-brand text-[12px] font-semibold text-green-deep"
+      style={{ width: size, height: size }}
+    >
+      {iniciales || "?"}
+    </span>
+  );
+}
+
+export function NavPanel({ nombre, rol, fotoUrl, solicitudesPendientes }: NavPanelProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [menuAbierto, setMenuAbierto] = useState(false);
@@ -84,15 +109,18 @@ export function NavPanel({ nombre, rol, solicitudesPendientes }: NavPanelProps) 
         <span className="hidden text-[15px] font-semibold text-text sm:inline">Agenda Revital</span>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          <div className="hidden text-right leading-tight md:block">
-            <div className="text-[13px] font-medium text-text">{nombre}</div>
-            <div className="text-[12px] capitalize text-text-muted">{rol}</div>
-          </div>
+          <Link href="/panel/mi-perfil" className="hidden items-center gap-2.5 md:flex" title="Mi perfil">
+            <div className="text-right leading-tight">
+              <div className="text-[13px] font-medium text-text">{nombre}</div>
+              <div className="text-[12px] capitalize text-text-muted">{rol}</div>
+            </div>
+            <Avatar nombre={nombre} fotoUrl={fotoUrl} />
+          </Link>
           <Link
             href="/panel/mi-perfil"
             aria-label="Mi perfil"
             title="Mi perfil"
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-surface-sunken ${
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-surface-sunken md:hidden ${
               esActivo("/panel/mi-perfil") ? "text-navy" : "text-text-muted"
             }`}
           >
@@ -135,10 +163,17 @@ export function NavPanel({ nombre, rol, solicitudesPendientes }: NavPanelProps) 
             className="absolute inset-x-0 top-14 z-50 max-h-[calc(100vh-3.5rem)] overflow-y-auto border-t border-line bg-surface shadow-lg md:hidden"
             aria-label="Panel (menú)"
           >
-            <div className="border-b border-line px-4 py-3">
-              <div className="text-[13.5px] font-medium text-text">{nombre}</div>
-              <div className="text-[12px] capitalize text-text-muted">{rol}</div>
-            </div>
+            <Link
+              href="/panel/mi-perfil"
+              onClick={() => setMenuAbierto(false)}
+              className="flex items-center gap-3 border-b border-line px-4 py-3"
+            >
+              <Avatar nombre={nombre} fotoUrl={fotoUrl} size={36} />
+              <div>
+                <div className="text-[13.5px] font-medium text-text">{nombre}</div>
+                <div className="text-[12px] capitalize text-text-muted">{rol}</div>
+              </div>
+            </Link>
             <ul>
               {itemsVisibles.map((item) => {
                 const activo = esActivo(item.href);
